@@ -1,0 +1,5 @@
+# requirements.txt
+python-binance==1.0.19
+numpy==1.24.3
+pandas==2.0.3
+python-dotenv==1.0.0
