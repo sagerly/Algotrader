@@ -230,9 +230,9 @@ if __name__ == "__main__":
     # Create backtester instance
     backtester = GridBacktester(
         symbol='BTCUSDT',
-        start_date="2024-03-01",
-        end_date="2024-04-01",
-        initial_capital=200,
+        start_date="2024-06-01",
+        end_date="2024-12-01",
+        initial_capital=500,
         grid_levels=10,
         grid_size_percent=10.0
     )
