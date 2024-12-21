@@ -254,56 +254,87 @@ class GridBot:
         volatility = np.std(price_history) / np.mean(price_history)
 
         # Only trade if market is trending (not choppy)
-        return volatility > 0.0008
+        return volatility > 0.0003
 
     def calculate_quantity(self, price, is_buy):
-        """Calculate order quantity with proper position sizing and risk management"""
+        """Calculate order quantity with improved position sizing and detailed logging"""
         try:
             base_balance, quote_balance = self.get_account_balance()
             if base_balance is None or quote_balance is None:
+                self.logger.error("Failed to get account balances")
                 return None
 
-        # Check minimum balance requirement
-            if quote_balance < self.min_trade_amount * 2:  # Keep buffer
-                self.logger.warning("Remaining balance too low for trading")
-                return None
+            # Log initial state
+            self.logger.info(f"Calculate quantity for {'BUY' if is_buy else 'SELL'} @ ${price:.2f}")
+            self.logger.info(f"Current balances - BTC: {base_balance:.8f}, USDT: ${quote_balance:.2f}")
 
             if is_buy:
-                # Use 10% of available USDT for each buy
-                available_funds = min(quote_balance, self.initial_capital * 0.1)
+                # Calculate maximum available funds (increased from 10% to 25% of available balance)
+                max_funds_percent = 0.25
+                available_funds = min(quote_balance, self.initial_capital * max_funds_percent)
+                
+                # Make sure we have enough for minimum trade
+                if available_funds < self.min_trade_amount:
+                    self.logger.warning(
+                        f"Available funds ${available_funds:.2f} below minimum ${self.min_trade_amount}"
+                    )
+                    return None
+
+                # Calculate quantity based on available funds
                 quantity = available_funds / price
-            
-            # Make sure we don't exceed available quote balance
-                if quantity * price > quote_balance:
-                    quantity = quote_balance / price
-                    self.logger.info(f"Adjusted buy quantity to match available USDT: {quantity:.8f} BTC")
-            else:
-            # Use 10% of available BTC for each sell
-                quantity = base_balance * 0.1
-            
-            # Make sure we don't exceed available BTC balance
-                if quantity > base_balance:
-                    quantity = base_balance
-                    self.logger.info(f"Adjusted sell quantity to match available BTC: {quantity:.8f} BTC")
-
-        # Round to 8 decimal places for BTC
-            quantity = round(quantity, 8)
-        
-        # Calculate and verify order value
-            order_value = quantity * price
-            if order_value < self.min_trade_amount:
-                self.logger.warning(
-                    f"Order value ${order_value:.2f} below minimum trade amount ${self.min_trade_amount}"
+                
+                # Round to 8 decimal places for BTC
+                quantity = round(quantity, 8)
+                
+                # Calculate final order value
+                order_value = quantity * price
+                
+                # Log calculation details
+                self.logger.info(
+                    f"Buy calculation:"
+                    f"\n- Max funds (25%): ${self.initial_capital * max_funds_percent:.2f}"
+                    f"\n- Available USDT: ${available_funds:.2f}"
+                    f"\n- Calculated quantity: {quantity:.8f} BTC"
+                    f"\n- Order value: ${order_value:.2f}"
                 )
-                return None
 
-            self.logger.info(
-                f"{'Buy' if is_buy else 'Sell'} quantity calculated: "
-                f"{quantity:.8f} BTC (${order_value:.2f})"
-            )
-        
+                # Verify final order value meets minimum
+                if order_value < self.min_trade_amount:
+                    self.logger.warning(
+                        f"Final order value ${order_value:.2f} below minimum ${self.min_trade_amount}"
+                    )
+                    return None
+
+                return quantity
+
+            else:  # SELL
+                # Use 25% of available BTC for each sell
+                max_quantity = base_balance * 0.25
+                
+                # Make sure selling this amount would exceed minimum trade value
+                order_value = max_quantity * price
+                if order_value < self.min_trade_amount:
+                    self.logger.warning(
+                        f"Sell value ${order_value:.2f} below minimum ${self.min_trade_amount}"
+                    )
+                    return None
+
+                # Round to 8 decimal places
+                quantity = round(max_quantity, 8)
+                
+                # Log calculation details
+                self.logger.info(
+                    f"Sell calculation:"
+                    f"\n- Available BTC: {base_balance:.8f}"
+                    f"\n- 25% of BTC: {max_quantity:.8f}"
+                    f"\n- Final quantity: {quantity:.8f}"
+                    f"\n- Order value: ${quantity * price:.2f}"
+                )
+
+                return quantity
+
         except Exception as e:
-            self.logger.error(f"Error calculating quantity: {e}")
+            self.logger.error(f"Error in calculate_quantity: {e}")
             return None
 
     def place_order(self, side, price, quantity):
@@ -438,68 +469,64 @@ class GridBot:
     def should_take_trade(self, side, price):
         """More selective trade entry conditions with improved risk management"""
         current_time = time.time()
-        # If last trade was too recent, skip
+        
+        # Reduce cooldown period from 300 to 60 seconds
         if hasattr(self, 'last_trade_time') and \
-           current_time - self.last_trade_time < 300:
-            self.logger.info("Skipping trade - Need to wait for cooldown period")
+           current_time - self.last_trade_time < 60:  # Changed from 300
             return False
         
         # Check market conditions
         base_balance, quote_balance = self.get_account_balance()
         total_value = quote_balance + (base_balance * price)
         
-        # Stop loss check (from original)
-        if total_value < self.initial_capital * 0.95:  # 5% maximum drawdown
+        # Relax stop loss from 5% to 7%
+        if total_value < self.initial_capital * 0.93:  # Changed from 0.95
             self.logger.warning(f"Stop loss triggered. Total value: ${total_value:.2f}")
             return False
         
-        # Check if we have enough price history for analysis
-        if len(self.price_history) < 5:
+        self.logger.info(f"Current portfolio - BTC: {base_balance:.8f}, USDT: ${quote_balance:.2f}")
+        
+        # Reduce required price history
+        if len(self.price_history) < 3:  # Changed from 5
             self.logger.info("Not enough price history for analysis")
             return False
         
         if side == SIDE_BUY:
-            # Don't buy if we already have too much BTC (keeping original 60%)
+            # Relax BTC position limit from 40% to 50%
             btc_value = base_balance * price
-            if btc_value / total_value > 0.4:
-                self.logger.info(f"Skip buy: BTC position ({btc_value/total_value:.2%}) exceeds max 60%")
+            if btc_value / total_value > 0.5:  # Changed from 0.4
+                self.logger.info(f"Skip buy: BTC position ({btc_value/total_value:.2%}) exceeds max 50%")
                 return False
-            else:
-                if base_balance * price < self.min_trade_amount * 2:
-                    return False
-                
             
-            # Don't buy if quote balance is too low (from original)
-            if quote_balance < self.min_trade_amount * 2:
+            # Reduce minimum USDT requirement
+            if quote_balance < self.min_trade_amount * 1.5:  # Changed from 2
                 self.logger.info(f"Skip buy: Insufficient USDT balance (${quote_balance:.2f})")
                 return False
             
-            # Check if price is near local bottom (new)
-            price_min = min(self.price_history[-10:])  # Last 10 prices
-            if price > price_min * 1.003:
+            # Relax local bottom requirement
+            price_min = min(self.price_history[-5:])  # Look at fewer prices
+            if price > price_min * 1.01:  # Changed from 1.005
                 self.logger.info("Skip buy: Price not near local bottom")
                 return False
             
         else:  # SELL
-            # Don't sell if we have too little BTC (from original)
             if base_balance * price < self.min_trade_amount:
                 self.logger.info(f"Skip sell: BTC position too small (${base_balance * price:.2f})")
                 return False
             
-            # Check if price is near local top (new)
-            price_max = max(self.price_history[-10:])
-            if price < price_max * 0.997:
+            # Relax local top requirement
+            price_max = max(self.price_history[-5:])  # Look at fewer prices
+            if price < price_max * 0.99:  # Changed from 0.997
                 self.logger.info("Skip sell: Price not near local top")
                 return False
         
-        # Calculate daily volatility for dynamic thresholds (new)
-        if len(self.price_history) >= 24:
-            daily_volatility = np.std(self.price_history[-24:]) / np.mean(self.price_history[-24:])
-            if daily_volatility < 0.001:
+        # Reduce volatility requirement
+        if len(self.price_history) >= 12:  # Changed from 24
+            daily_volatility = np.std(self.price_history[-12:]) / np.mean(self.price_history[-12:])
+            if daily_volatility < 0.0005:  # Changed from 0.001
                 self.logger.info(f"Skip trade: Low volatility ({daily_volatility:.4f})")
                 return False
         
-        self.logger.info(f"Trade conditions met for {side}")
         return True
 
     def monitor_and_replace_orders(self):
@@ -507,10 +534,10 @@ class GridBot:
         last_price_log = time.time()
         last_balance_log = time.time()
         last_trade_time = None
-        min_profit_threshold = 0.001
-        min_volatility_threshold = 0.0003  # Only trade when market is moving enough
-        consolidation_period = 12  # Number of periods to check for consolidation
-        min_time_between_trades = 180
+        min_profit_threshold = 0.0005  # Changed from 0.001
+        min_volatility_threshold = 0.0002  # Changed from 0.0003
+        consolidation_period = 6  # Changed from 12
+        min_time_between_trades = 60  # Changed from 180
         
         while True:
             try:
@@ -519,95 +546,44 @@ class GridBot:
                     time.sleep(1)
                     continue
 
-                if self.update_grid_levels(current_price):
-                    self.logger.infor("Grid has been recentered")
-                    continue
-                
-                # Store price history and calculate metrics using self.price_history
+                # Store price history
                 self.price_history.append(current_price)
                 if len(self.price_history) > consolidation_period:
                     self.price_history.pop(0)
                 
                 # Only consider trading if we have enough price history
                 if len(self.price_history) >= consolidation_period:
-                    # Use self.price_history for market condition check
-                    if not self.analyze_market_conditions(self.price_history):
-                        if random.random() < 0.1:  # Reduce log spam
-                            volatility = np.std(self.price_history) / np.mean(self.price_history)
-                            self.logger.info(f"Current volatility: {volatility:.6f} (need > 0.0008)")
-                            self.logger.info("Market conditions not suitable for trading")
-                            self.logger.info(f"Price history length: {len(self.price_history)}")
-                        time.sleep(1)
-                        continue
-
                     volatility = np.std(self.price_history[-consolidation_period:]) / np.mean(self.price_history[-consolidation_period:])
                     price_trend = (self.price_history[-1] - self.price_history[0]) / self.price_history[0]
                     
-                    # Log market conditions periodically
-                    if time.time() - last_price_log > 300:
-                        self.logger.info(f"Current price: ${current_price:.2f}")
-                        self.logger.info(f"Current volatility: {volatility:.4f}")
-                        self.logger.info(f"Price trend: {price_trend:.4f}")
-                        last_price_log = time.time()
-                    
-                    if time.time() - last_balance_log > 600:
-                        base_balance, quote_balance = self.get_account_balance()
-                        portfolio_value = quote_balance + (base_balance * current_price)
-                        self.logger.info(f"Portfolio Value: ${portfolio_value:.2f}")
-                        last_balance_log = time.time()
-                    
-                    # Check if enough time has passed since last trade
-                    if last_trade_time and time.time() - last_trade_time < min_time_between_trades:
-                        time.sleep(1)
-                        continue
-                    
-                    # Only trade if market conditions are favorable
-                    if volatility > min_volatility_threshold:
-                        # Check buy orders
-                        for buy_price in self.buy_orders[:]:
-                            if current_price <= buy_price:
-                                # Buy only on significant downtrends
-                                if price_trend < -0.0005:
-                                    potential_profit = (buy_price * (1 + self.grid_size_percent/100) - buy_price) / buy_price
-                                    
-                                    if potential_profit > min_profit_threshold and self.should_take_trade(SIDE_BUY, buy_price):
-                                        quantity = self.calculate_quantity(buy_price, True)
-                                        if quantity:
-                                            if self.place_order(SIDE_BUY, buy_price, quantity):
-                                                self.buy_orders.remove(buy_price)
-                                                new_sell_price = buy_price * (1 + self.grid_size_percent/100)
-                                                self.sell_orders.append(new_sell_price)
-                                                last_trade_time = time.time()
-                                                self.last_trade_time = time.time()  # Set this for should_take_trade
-                                                self.logger.info(
-                                                    f"BUY executed at ${buy_price:.2f} during downtrend [{price_trend:.4f}]. "
-                                                    f"Volatility: {volatility:.4f}. "
-                                                    f"New sell order at ${new_sell_price:.2f} "
-                                                    f"Target profit: {potential_profit:.2%}"
-                                                )
-                        
-                        # Check sell orders
-                        for sell_price in self.sell_orders[:]:
-                            if current_price >= sell_price:
-                                # Sell only on significant uptrends
-                                if price_trend > 0.0005:
-                                    realized_profit = (current_price - sell_price) / sell_price
-                                    
-                                    if realized_profit > min_profit_threshold and self.should_take_trade(SIDE_SELL, sell_price):
-                                        quantity = self.calculate_quantity(sell_price, False)
-                                        if quantity:
-                                            if self.place_order(SIDE_SELL, sell_price, quantity):
-                                                self.sell_orders.remove(sell_price)
-                                                new_buy_price = sell_price * (1 - self.grid_size_percent/100)
-                                                self.buy_orders.append(new_buy_price)
-                                                last_trade_time = time.time()
-                                                self.last_trade_time = time.time()  # Set this for should_take_trade
-                                                self.logger.info(
-                                                    f"SELL executed at ${sell_price:.2f} during uptrend [{price_trend:.4f}]. "
-                                                    f"Volatility: {volatility:.4f}. "
-                                                    f"New buy order at ${new_buy_price:.2f} "
-                                                    f"Realized profit: {realized_profit:.2%}"
-                                                )
+                    # Relax trend requirements
+                    for buy_price in self.buy_orders[:]:
+                        if current_price <= buy_price:
+                            if price_trend < -0.0003:  # Changed from -0.0005
+                                potential_profit = (buy_price * (1 + self.grid_size_percent/100) - buy_price) / buy_price
+                                if potential_profit > min_profit_threshold and self.should_take_trade(SIDE_BUY, buy_price):
+                                    quantity = self.calculate_quantity(buy_price, True)
+                                    if quantity:
+                                        if self.place_order(SIDE_BUY, buy_price, quantity):
+                                            self.buy_orders.remove(buy_price)
+                                            new_sell_price = buy_price * (1 + self.grid_size_percent/100)
+                                            self.sell_orders.append(new_sell_price)
+                                            last_trade_time = time.time()
+                                            self.last_trade_time = time.time()
+                
+                    for sell_price in self.sell_orders[:]:
+                        if current_price >= sell_price:
+                            if price_trend > 0.0003:  # Changed from 0.0005
+                                realized_profit = (current_price - sell_price) / sell_price
+                                if realized_profit > min_profit_threshold and self.should_take_trade(SIDE_SELL, sell_price):
+                                    quantity = self.calculate_quantity(sell_price, False)
+                                    if quantity:
+                                        if self.place_order(SIDE_SELL, sell_price, quantity):
+                                            self.sell_orders.remove(sell_price)
+                                            new_buy_price = sell_price * (1 - self.grid_size_percent/100)
+                                            self.buy_orders.append(new_buy_price)
+                                            last_trade_time = time.time()
+                                            self.last_trade_time = time.time()
                 
                 time.sleep(1)
                 
@@ -691,13 +667,11 @@ class GridBot:
             base_balance, quote_balance = self.get_account_balance()
             self.logger.info(f"Initial portfolio value: ${quote_balance + (base_balance * current_price):.2f}")
             
-            # Run monitoring in a separate thread or allow for a break condition
-            try:
-                self.monitor_and_replace_orders()
-            except KeyboardInterrupt:
-                self.logger.info("Monitoring stopped by user.")
+            # Ensure monitoring starts correctly
+            self.monitor_and_replace_orders()  # Ensure this is called directly
             
-            self.calculate_current_metrics()  # Ensure this is reachable
+            # Call to calculate current metrics after monitoring
+            self.calculate_current_metrics()  # Added this line to ensure the method is reachable
             
         except Exception as e:
             self.logger.error(f"Error running bot: {e}")

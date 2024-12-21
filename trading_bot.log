@@ -1,0 +1,103 @@
+2024-12-21 13:04:58,836 - INFO - Running in TEST MODE - No real trades will be made
+2024-12-21 13:04:59,329 - INFO - Test Mode Initial Capital: $200
+2024-12-21 13:04:59,329 - INFO - Starting Grid Trading Bot - TEST MODE
+2024-12-21 13:04:59,599 - INFO - Test current price: $97177.54
+2024-12-21 13:04:59,600 - INFO - Current price: $97177.54
+2024-12-21 13:04:59,600 - INFO - Setting up grid around $97177.54
+2024-12-21 13:04:59,600 - INFO - Grid range: $971.78 (±0.5%)
+2024-12-21 13:04:59,600 - INFO - Step size: $25.91
+2024-12-21 13:04:59,600 - INFO - Grid level 1: Buy $97151.63 -> Sell $97203.46 (Potential profit: 0.05%)
+2024-12-21 13:04:59,600 - INFO - Grid level 2: Buy $97125.71 -> Sell $97229.37 (Potential profit: 0.11%)
+2024-12-21 13:04:59,601 - INFO - Grid level 3: Buy $97099.80 -> Sell $97255.28 (Potential profit: 0.16%)
+2024-12-21 13:04:59,601 - INFO - Grid level 4: Buy $97073.88 -> Sell $97281.20 (Potential profit: 0.21%)
+2024-12-21 13:04:59,601 - INFO - Grid level 5: Buy $97047.97 -> Sell $97307.11 (Potential profit: 0.27%)
+2024-12-21 13:04:59,601 - INFO - Grid level 6: Buy $97022.06 -> Sell $97333.03 (Potential profit: 0.32%)
+2024-12-21 13:04:59,601 - INFO - Grid level 7: Buy $96996.14 -> Sell $97358.94 (Potential profit: 0.37%)
+2024-12-21 13:04:59,601 - INFO - Grid level 8: Buy $96970.23 -> Sell $97384.85 (Potential profit: 0.43%)
+2024-12-21 13:04:59,601 - INFO - Grid level 9: Buy $96944.31 -> Sell $97410.77 (Potential profit: 0.48%)
+2024-12-21 13:04:59,601 - INFO - Grid level 10: Buy $96918.40 -> Sell $97436.68 (Potential profit: 0.53%)
+2024-12-21 13:04:59,602 - INFO - Grid level 11: Buy $96892.49 -> Sell $97462.60 (Potential profit: 0.59%)
+2024-12-21 13:04:59,602 - INFO - Grid level 12: Buy $96866.57 -> Sell $97488.51 (Potential profit: 0.64%)
+2024-12-21 13:04:59,602 - INFO - Grid level 13: Buy $96840.66 -> Sell $97514.42 (Potential profit: 0.70%)
+2024-12-21 13:04:59,602 - INFO - Grid level 14: Buy $96814.74 -> Sell $97540.34 (Potential profit: 0.75%)
+2024-12-21 13:04:59,602 - INFO - Grid level 15: Buy $96788.83 -> Sell $97566.25 (Potential profit: 0.80%)
+2024-12-21 13:04:59,602 - INFO - Created grid with 15 buy levels and 15 sell levels
+2024-12-21 13:04:59,602 - INFO - Buy range: $96788.83 to $97151.63
+2024-12-21 13:04:59,602 - INFO - Sell range: $97203.46 to $97566.25
+2024-12-21 13:04:59,602 - INFO - Created grid with 31 price levels
+2024-12-21 13:04:59,602 - INFO - Initial portfolio value: $200.00
+2024-12-21 13:05:11,180 - INFO - Current portfolio - BTC: 0.00000000, USDT: $200.00
+2024-12-21 13:05:11,181 - INFO - Skip sell: BTC position too small ($0.00)
+2024-12-21 13:05:11,181 - INFO - Current portfolio - BTC: 0.00000000, USDT: $200.00
+2024-12-21 13:05:11,181 - INFO - Skip sell: BTC position too small ($0.00)
+2024-12-21 13:05:12,464 - INFO - Current portfolio - BTC: 0.00000000, USDT: $200.00
+2024-12-21 13:05:12,464 - INFO - Skip sell: BTC position too small ($0.00)
+2024-12-21 13:05:12,464 - INFO - Current portfolio - BTC: 0.00000000, USDT: $200.00
+2024-12-21 13:05:12,465 - INFO - Skip sell: BTC position too small ($0.00)
+2024-12-21 13:05:12,465 - INFO - Current portfolio - BTC: 0.00000000, USDT: $200.00
+2024-12-21 13:05:12,465 - INFO - Skip sell: BTC position too small ($0.00)
+2024-12-21 13:05:12,465 - INFO - Current portfolio - BTC: 0.00000000, USDT: $200.00
+2024-12-21 13:05:12,465 - INFO - Skip sell: BTC position too small ($0.00)
+2024-12-21 13:05:13,670 - INFO - Current portfolio - BTC: 0.00000000, USDT: $200.00
+2024-12-21 13:05:13,671 - INFO - Skip sell: BTC position too small ($0.00)
+2024-12-21 13:05:13,671 - INFO - Current portfolio - BTC: 0.00000000, USDT: $200.00
+2024-12-21 13:05:13,671 - INFO - Skip sell: BTC position too small ($0.00)
+2024-12-21 13:05:14,897 - INFO - Current portfolio - BTC: 0.00000000, USDT: $200.00
+2024-12-21 13:05:14,897 - INFO - Skip sell: BTC position too small ($0.00)
+2024-12-21 13:05:14,898 - INFO - Current portfolio - BTC: 0.00000000, USDT: $200.00
+2024-12-21 13:05:14,898 - INFO - Skip sell: BTC position too small ($0.00)
+2024-12-21 13:05:26,060 - INFO - Current portfolio - BTC: 0.00000000, USDT: $200.00
+2024-12-21 13:05:26,061 - INFO - Skip sell: BTC position too small ($0.00)
+2024-12-21 13:05:26,061 - INFO - Current portfolio - BTC: 0.00000000, USDT: $200.00
+2024-12-21 13:05:26,061 - INFO - Skip sell: BTC position too small ($0.00)
+2024-12-21 13:05:26,061 - INFO - Current portfolio - BTC: 0.00000000, USDT: $200.00
+2024-12-21 13:05:26,061 - INFO - Skip sell: BTC position too small ($0.00)
+2024-12-21 13:05:28,571 - INFO - Current portfolio - BTC: 0.00000000, USDT: $200.00
+2024-12-21 13:05:28,571 - INFO - Skip sell: BTC position too small ($0.00)
+2024-12-21 13:05:28,571 - INFO - Current portfolio - BTC: 0.00000000, USDT: $200.00
+2024-12-21 13:05:28,571 - INFO - Skip sell: BTC position too small ($0.00)
+2024-12-21 13:05:38,632 - INFO - Current portfolio - BTC: 0.00000000, USDT: $200.00
+2024-12-21 13:05:38,633 - INFO - Calculate quantity for BUY @ $97151.63
+2024-12-21 13:05:38,633 - INFO - Current balances - BTC: 0.00000000, USDT: $200.00
+2024-12-21 13:05:38,633 - INFO - Buy calculation:
+- Max funds (25%): $50.00
+- Available USDT: $50.00
+- Calculated quantity: 0.00051466 BTC
+- Order value: $50.00
+2024-12-21 13:05:38,633 - INFO - TEST MODE - Bought 0.00051466 BTC for $50.00 (fee: $0.05)
+2024-12-21 13:05:38,633 - INFO - TEST MODE - New balances - BTC: 0.00051466, USDT: $149.95
+2024-12-21 13:05:46,157 - INFO - Test current price: $97220.87
+2024-12-21 13:05:51,195 - INFO - Test current price: $97208.71
+2024-12-21 13:06:14,758 - INFO - Test current price: $97249.02
+2024-12-21 13:06:37,054 - INFO - Test current price: $97201.90
+2024-12-21 13:06:43,356 - INFO - Test current price: $97159.70
+2024-12-21 13:06:45,885 - INFO - Current portfolio - BTC: 0.00051466, USDT: $149.95
+2024-12-21 13:06:45,886 - INFO - Calculate quantity for BUY @ $97125.71
+2024-12-21 13:06:45,886 - INFO - Current balances - BTC: 0.00051466, USDT: $149.95
+2024-12-21 13:06:45,886 - INFO - Buy calculation:
+- Max funds (25%): $50.00
+- Available USDT: $50.00
+- Calculated quantity: 0.00051480 BTC
+- Order value: $50.00
+2024-12-21 13:06:45,886 - INFO - TEST MODE - Bought 0.00051480 BTC for $50.00 (fee: $0.05)
+2024-12-21 13:06:45,886 - INFO - TEST MODE - New balances - BTC: 0.00102946, USDT: $99.90
+2024-12-21 13:07:09,531 - INFO - Test current price: $96961.41
+2024-12-21 13:07:26,904 - INFO - Test current price: $96909.56
+2024-12-21 13:07:43,007 - INFO - Test current price: $97025.01
+2024-12-21 13:07:45,527 - INFO - Test current price: $96893.05
+2024-12-21 13:07:46,811 - INFO - Current portfolio - BTC: 0.00102946, USDT: $99.90
+2024-12-21 13:07:46,811 - INFO - Skip buy: BTC position (50.02%) exceeds max 50%
+2024-12-21 13:07:46,811 - INFO - Current portfolio - BTC: 0.00102946, USDT: $99.90
+2024-12-21 13:07:46,812 - INFO - Skip buy: BTC position (50.01%) exceeds max 50%
+2024-12-21 13:07:46,812 - INFO - Current portfolio - BTC: 0.00102946, USDT: $99.90
+2024-12-21 13:07:46,812 - INFO - Skip buy: BTC position (50.00%) exceeds max 50%
+2024-12-21 13:07:46,812 - INFO - Current portfolio - BTC: 0.00102946, USDT: $99.90
+2024-12-21 13:07:46,812 - INFO - Calculate quantity for BUY @ $97022.06
+2024-12-21 13:07:46,812 - INFO - Current balances - BTC: 0.00102946, USDT: $99.90
+2024-12-21 13:07:46,813 - INFO - Buy calculation:
+- Max funds (25%): $50.00
+- Available USDT: $50.00
+- Calculated quantity: 0.00051535 BTC
+- Order value: $50.00
+2024-12-21 13:07:46,813 - INFO - TEST MODE - Bought 0.00051535 BTC for $50.00 (fee: $0.05)
+2024-12-21 13:07:46,813 - INFO - TEST MODE - New balances - BTC: 0.00154481, USDT: $49.85
